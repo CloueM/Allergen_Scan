@@ -1,0 +1,149 @@
+openapi: 3.0.0
+info:
+  description: The AllergenScan API is designed to provide allergen-related information to users and receive two types of events related to allergens and ingredient suggestions. The primary purpose is to allow users to access allergen information about food products and submit events related to allergen alerts and ingredient suggestions.
+  version: 1.0.0
+  title: AllergenScan API
+  contact:
+    email: cmacadangdang@my.bcit.ca
+paths:
+  #---------------------------------------------------
+  /allergen_alert/readings:
+    get:
+      summary: Get AllergenAlert events after a specific timestamp
+      operationId: app.get_allergen_alerts
+      parameters:
+        - name: index
+          in: query
+          description: Limit the events to those created after this timestamp
+          schema:
+            type: string
+            format: date-time
+            example: "2023-10-03 10:54:57.384402"
+      responses:
+        '200':
+          description: Successfully returned AllergenAlert events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AllergenAlertEvent"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  #---------------------------------------------------
+  /ingredient_suggestion/readings:
+    get:
+      summary: Get IngredientSuggestion events after a specific timestamp
+      operationId: app.get_ingredient_suggestions
+      parameters:
+        - name: index
+          in: query
+          description: Limit the events to those created after this timestamp
+          schema:
+            type: string
+            format: date-time
+            example: "2023-10-03 10:54:57.384402"
+      responses:
+        '200':
+          description: Successfully returned IngredientSuggestion events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IngredientSuggestionEvent"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    AllergenAlertEvent:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: "Peanut Butter"
+        barcode:
+          type: integer
+          example: 1234567890
+        allergen:
+          type: string
+          example: "Peanuts"
+        symptom:
+          type: string
+          example: "Swelling"
+        user_id:
+          type: integer
+          example: 12345
+        user_name:
+          type: string
+          example: "Cloue Macz"
+      required:
+        - product_name
+        - barcode
+        - allergen
+        - symptom
+        - user_id
+        - user_name
+
+    IngredientSuggestionEvent:
+      type: object
+      properties:
+        product_name:
+          type: string
+          example: "Chocolate Cake"
+        barcode:
+          type: integer
+          example: 9876543210
+        suggested_ingredient:
+          type: string
+          example: "Vanilla extract"
+        suggestion_details:
+          type: string
+          example: "Try adding a hint of vanilla for better taste."
+        user_id:
+          type: integer
+          example: 54321
+        user_name:
+          type: string
+          example: "Cloue Macz"
+      required:
+        - product_name
+        - barcode
+        - suggested_ingredient
+        - suggestion_details
+        - user_id
+        - user_name
+

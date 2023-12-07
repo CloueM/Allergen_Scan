@@ -1,0 +1,11 @@
+version: 1
+datastore:
+  user: user
+  password: password
+  hostname: acit3855-lab6-cloue.eastus.cloudapp.azure.com
+  port: 3306
+  db: allergen_scan
+events:
+  hostname: acit3855-lab6-cloue.eastus.cloudapp.azure.com
+  port: 9092
+  topic: allergenscan_event

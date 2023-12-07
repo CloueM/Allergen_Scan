@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  description: This API provides event stats for allergen alerts and ingredient suggestions
+  version: "1.0.0"
+  title: AllergenScan Stats API
+  contact:
+    email: cmacadangdang@my.bcit.ca
+paths:
+  /stats:
+    get:
+      summary: Gets the event stats
+      operationId: app.get_stats
+      description: Gets statistics for allergen_alert and ingredient_suggestion events
+      responses:
+        '200':
+          description: Successfully returned a list of event statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventStats'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    EventStats:
+      required:
+        - num_allergen_alerts
+        - num_ingredient_suggestions
+        - num_symptoms_recorded
+        - total_ingredient_substitutes
+      properties:
+        num_allergen_alerts:
+          type: integer
+          example: 100
+        num_ingredient_suggestions:
+          type: integer
+          example: 200
+        num_symptoms_recorded:
+          type: integer
+          example: 150
+        total_ingredient_substitutes:
+          type: integer
+          example: 300

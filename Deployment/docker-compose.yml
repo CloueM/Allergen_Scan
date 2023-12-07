@@ -1,0 +1,110 @@
+version: '3.3'
+
+services:
+  zookeeper:
+    image: wurstmeister/zookeeper
+    hostname: zookeeper
+    ports:
+      - '2181:2181'
+
+  kafka:
+    image: wurstmeister/kafka
+    command: [start-kafka.sh]
+    hostname: kafka
+    ports:
+      - '9092:9092'
+    environment:
+      KAFKA_CREATE_TOPICS: 'allergen_scan:1:1'  
+      KAFKA_ADVERTISED_HOST_NAME: 'acit3855-lab6-cloue.eastus.cloudapp.azure.com'  
+      KAFKA_LISTENERS: 'INSIDE://:29092,OUTSIDE://:9092'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'INSIDE'
+      KAFKA_ADVERTISED_LISTENERS: 'INSIDE://kafka:29092,OUTSIDE://acit3855-lab6-cloue.eastus.cloudapp.azure.com:9092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT'
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LOG_DIRS: '/kafka/kafka-logs'
+      KAFKA_BROKER_ID: 1
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'
+      - '/home/azureuser/kafka:/kafka/kafka-logs'
+    depends_on:
+      - zookeeper
+
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'allergen_scan'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
+    volumes:
+      - my-db:/var/lib/mysql
+    depends_on:
+      - zookeeper
+
+  receiver:
+    image: receiver
+    ports:
+      - '8081:8081'
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - '/home/azureuser/config/receiver:/config'
+      - '/home/azureuser/logs:/logs'
+    depends_on:
+      - kafka
+
+  storage:
+    image: storage
+    ports:
+      - '8090:8090'
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - '/home/azureuser/config/storage:/config'
+      - '/home/azureuser/logs:/logs'
+    depends_on:
+      - kafka
+      - db
+
+  processing:
+    image: processing
+    ports:
+      - '8100:8100'
+    network_mode: 'host'
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - '/home/azureuser/config/processing:/config'
+      - '/home/azureuser/logs:/logs'
+      - processing-db:/data
+    depends_on:
+      - storage
+
+  audit_log:
+    image: audit_log
+    ports:
+      - '8110:8110'
+    environment:
+      - TARGET_ENV=test
+    volumes:
+      - '/home/azureuser/config/audit_log:/config'
+      - '/home/azureuser/logs:/logs'
+    depends_on:
+      - kafka
+
+  dashboard:
+    image: dashboard
+    ports:
+      - '3000:3000'
+    depends_on:
+      - processing
+      - audit_log
+
+volumes:
+  my-db:
+  processing-db:

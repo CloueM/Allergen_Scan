@@ -1,0 +1,10 @@
+version: 1
+allergen_alert_event:
+  url: http://localhost:8090/allergen_alert
+ingredient_suggestion:
+  url: http://localhost:8090/ingredient_suggestion
+
+events:
+  hostname: acit3855-lab6-cloue.eastus.cloudapp.azure.com
+  port: 9092
+  topic: allergenscan_event
